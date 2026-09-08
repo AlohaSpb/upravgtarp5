@@ -12,6 +12,14 @@ function sectionPreviewTitle(section: SectionRecord) {
   return (content.title as string) || (content.eyebrow as string) || "Без названия";
 }
 
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-zа-яё0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function AdminBuilder() {
   const router = useRouter();
   const [sections, setSections] = useState<SectionRecord[]>([]);
@@ -19,7 +27,9 @@ export function AdminBuilder() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftContent, setDraftContent] = useState<Record<string, unknown> | null>(null);
-  const [newType, setNewType] = useState<SectionType>("text");
+  const [newType, setNewType] = useState<SectionType>("custom");
+  const [newSectionTitle, setNewSectionTitle] = useState("");
+  const [newSectionLink, setNewSectionLink] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const [settingsDraft, setSettingsDraft] = useState<SiteSettingsRecord | null>(null);
   const [newPassword, setNewPassword] = useState("");
@@ -46,12 +56,32 @@ export function AdminBuilder() {
   async function handleLogout() { await fetch("/api/admin/logout", { method: "POST" }); router.refresh(); }
 
   async function handleAddSection() {
-    const res = await fetch("/api/sections", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: newType }) });
+    const title = newSectionTitle.trim();
+    let link = newSectionLink.trim();
+
+    if (newType === "custom" && !title) {
+      setToast("Укажите название раздела");
+      return;
+    }
+
+    if (newType === "custom" && !link) {
+      const slug = slugify(title);
+      link = slug ? `/${slug}` : "/section";
+    }
+
+    const res = await fetch("/api/sections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: newType, title, link }),
+    });
+
     if (res.ok) {
       const data = await res.json();
       setSections((prev) => [...prev, data.section]);
       setEditingId(data.section.id);
       setDraftContent(data.section.content);
+      setNewSectionTitle("");
+      setNewSectionLink("");
       setToast("Раздел добавлен");
     }
   }
@@ -66,7 +96,11 @@ export function AdminBuilder() {
   async function handleToggleVisible(section: SectionRecord) {
     const nextVisible = !section.visible;
     setSections((prev) => prev.map((s) => (s.id === section.id ? { ...s, visible: nextVisible } : s)));
-    await fetch(`/api/sections/${section.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ visible: nextVisible }) });
+    await fetch(`/api/sections/${section.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visible: nextVisible }),
+    });
   }
 
   async function handleMove(index: number, direction: -1 | 1) {
@@ -75,7 +109,11 @@ export function AdminBuilder() {
     const next = [...sections];
     [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
     setSections(next);
-    await fetch("/api/sections/reorder", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: next.map((s) => s.id) }) });
+    await fetch("/api/sections/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order: next.map((s) => s.id) }),
+    });
   }
 
   function startEditing(section: SectionRecord) { setEditingId(section.id); setDraftContent(section.content); }
@@ -83,11 +121,17 @@ export function AdminBuilder() {
 
   async function saveEditing(id: string) {
     if (!draftContent) return;
-    const res = await fetch(`/api/sections/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: draftContent }) });
+    const res = await fetch(`/api/sections/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: draftContent }),
+    });
     if (res.ok) {
       const data = await res.json();
       setSections((prev) => prev.map((s) => (s.id === id ? data.section : s)));
-      setEditingId(null); setDraftContent(null); setToast("Изменения сохранены");
+      setEditingId(null);
+      setDraftContent(null);
+      setToast("Изменения сохранены");
     }
   }
 
@@ -97,22 +141,40 @@ export function AdminBuilder() {
     try {
       const body: Record<string, unknown> = { ...settingsDraft };
       if (newPassword.trim().length >= 4) body.newPassword = newPassword.trim();
-      const res = await fetch("/api/settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
       if (res.ok) {
         const data = await res.json();
-        setSettings(data.settings); setSettingsDraft(data.settings); setNewPassword(""); setToast("Настройки сохранены");
+        setSettings(data.settings);
+        setSettingsDraft(data.settings);
+        setNewPassword("");
+        setToast("Настройки сохранены");
       }
-    } finally { setSavingSettings(false); }
+    } finally {
+      setSavingSettings(false);
+    }
   }
 
-  if (loading || !settings || !settingsDraft) return <div className="grid min-h-screen place-items-center bg-[#0b0d12] text-white/60">Загрузка конструктора...</div>;
+  if (loading || !settings || !settingsDraft) {
+    return <div className="grid min-h-screen place-items-center bg-[#0b0d12] text-white/60">Загрузка конструктора...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-[#0b0d12] pb-24 text-white">
       <div className="sticky top-0 z-40 border-b border-white/10 bg-[#0b0d12]/95 px-6 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <div><h1 className="text-lg font-black">🏛️ Конструктор сайта</h1><p className="text-xs text-white/40">Управление кадров — полное редактирование портала</p></div>
-          <div className="flex items-center gap-3">{toast ? <span className="text-xs font-semibold text-green-400">{toast}</span> : null}<a href="/" target="_blank" rel="noreferrer"><GhostButton type="button">Открыть сайт ↗</GhostButton></a><DangerButton type="button" onClick={handleLogout}>Выйти</DangerButton></div>
+          <div>
+            <h1 className="text-lg font-black">🏛️ Конструктор сайта</h1>
+            <p className="text-xs text-white/40">Управление кадров — полное редактирование портала</p>
+          </div>
+          <div className="flex items-center gap-3">
+            {toast ? <span className="text-xs font-semibold text-green-400">{toast}</span> : null}
+            <a href="/" target="_blank" rel="noreferrer"><GhostButton type="button">Открыть сайт ↗</GhostButton></a>
+            <DangerButton type="button" onClick={handleLogout}>Выйти</DangerButton>
+          </div>
         </div>
       </div>
 
@@ -121,7 +183,10 @@ export function AdminBuilder() {
           <Panel title="Настройки сайта">
             <Field label="Название сайта"><TextInput value={settingsDraft.siteName} onChange={(e) => setSettingsDraft({ ...settingsDraft, siteName: e.target.value })} /></Field>
             <Field label="Слоган"><TextInput value={settingsDraft.tagline} onChange={(e) => setSettingsDraft({ ...settingsDraft, tagline: e.target.value })} /></Field>
-            <div className="grid grid-cols-2 gap-3"><Field label="Эмодзи-логотип"><TextInput value={settingsDraft.logoEmoji} onChange={(e) => setSettingsDraft({ ...settingsDraft, logoEmoji: e.target.value })} /></Field><Field label="Акцентный цвет"><TextInput type="color" value={settingsDraft.accentColor} onChange={(e) => setSettingsDraft({ ...settingsDraft, accentColor: e.target.value })} className="h-[42px] p-1" /></Field></div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Эмодзи-логотип"><TextInput value={settingsDraft.logoEmoji} onChange={(e) => setSettingsDraft({ ...settingsDraft, logoEmoji: e.target.value })} /></Field>
+              <Field label="Акцентный цвет"><TextInput type="color" value={settingsDraft.accentColor} onChange={(e) => setSettingsDraft({ ...settingsDraft, accentColor: e.target.value })} className="h-[42px] p-1" /></Field>
+            </div>
             <Field label="IP сервера"><TextInput value={settingsDraft.serverIp} onChange={(e) => setSettingsDraft({ ...settingsDraft, serverIp: e.target.value })} /></Field>
             <Field label="Discord"><TextInput value={settingsDraft.discordLink} onChange={(e) => setSettingsDraft({ ...settingsDraft, discordLink: e.target.value })} /></Field>
             <Field label="VK"><TextInput value={settingsDraft.vkLink} onChange={(e) => setSettingsDraft({ ...settingsDraft, vkLink: e.target.value })} /></Field>
@@ -132,7 +197,20 @@ export function AdminBuilder() {
             <PrimaryButton type="button" onClick={saveSettings} disabled={savingSettings} className="w-full">{savingSettings ? "Сохранение..." : "Сохранить настройки"}</PrimaryButton>
           </Panel>
 
-          <Panel title="Добавить раздел"><Field label="Тип раздела"><select value={newType} onChange={(e) => setNewType(e.target.value as SectionType)} className="w-full rounded-lg border border-white/15 bg-black/30 px-3.5 py-2.5 text-sm text-white outline-none">{SECTION_TYPES.map((type) => <option key={type} value={type}>{SECTION_ICONS[type]} {SECTION_LABELS[type]}</option>)}</select></Field><PrimaryButton type="button" onClick={handleAddSection} className="w-full">+ Добавить на сайт</PrimaryButton></Panel>
+          <Panel title="Добавить раздел">
+            <Field label="Тип раздела">
+              <select value={newType} onChange={(e) => setNewType(e.target.value as SectionType)} className="w-full rounded-lg border border-white/15 bg-black/30 px-3.5 py-2.5 text-sm text-white outline-none">
+                {SECTION_TYPES.map((type) => <option key={type} value={type}>{SECTION_ICONS[type]} {SECTION_LABELS[type]}</option>)}
+              </select>
+            </Field>
+            {newType === "custom" ? (
+              <>
+                <Field label="Название раздела"><TextInput value={newSectionTitle} onChange={(e) => setNewSectionTitle(e.target.value)} placeholder="Например: Состав управления" /></Field>
+                <Field label="Адрес страницы" hint="Можно оставить пустым — адрес создастся из названия"><TextInput value={newSectionLink} onChange={(e) => setNewSectionLink(e.target.value)} placeholder="/staff" /></Field>
+              </>
+            ) : null}
+            <PrimaryButton type="button" onClick={handleAddSection} className="w-full">+ Добавить на сайт</PrimaryButton>
+          </Panel>
         </div>
 
         <div className="space-y-4">
@@ -140,17 +218,34 @@ export function AdminBuilder() {
           {sections.map((section, index) => {
             const isEditing = editingId === section.id;
             const navigation = getSectionNavigation(section);
-            return <div key={section.id} className="rounded-2xl border border-white/10 bg-white/[0.03]">
-              <div className="flex items-center gap-3 p-4">
-                <div className="flex flex-col gap-1"><button type="button" onClick={() => handleMove(index, -1)} disabled={index === 0} className="text-white/50 hover:text-white disabled:opacity-20">▲</button><button type="button" onClick={() => handleMove(index, 1)} disabled={index === sections.length - 1} className="text-white/50 hover:text-white disabled:opacity-20">▼</button></div>
-                <div className="text-2xl">{SECTION_ICONS[section.type]}</div>
-                <div className="flex-1"><div className="text-xs font-semibold uppercase tracking-wide text-white/40">{SECTION_LABELS[section.type]} · меню: {navigation.label || "скрыто"}</div><div className="font-semibold">{sectionPreviewTitle(section)}</div><div className="mt-1 text-xs text-white/35">{navigation.link}</div></div>
-                <Toggle checked={section.visible} onChange={() => handleToggleVisible(section)} />
-                {isEditing ? <GhostButton type="button" onClick={cancelEditing}>Свернуть</GhostButton> : <GhostButton type="button" onClick={() => startEditing(section)}>Редактировать</GhostButton>}
-                <DangerButton type="button" onClick={() => handleDelete(section.id)}>Удалить</DangerButton>
+            return (
+              <div key={section.id} className="rounded-2xl border border-white/10 bg-white/[0.03]">
+                <div className="flex items-center gap-3 p-4">
+                  <div className="flex flex-col gap-1">
+                    <button type="button" onClick={() => handleMove(index, -1)} disabled={index === 0} className="text-white/50 hover:text-white disabled:opacity-20">▲</button>
+                    <button type="button" onClick={() => handleMove(index, 1)} disabled={index === sections.length - 1} className="text-white/50 hover:text-white disabled:opacity-20">▼</button>
+                  </div>
+                  <div className="text-2xl">{SECTION_ICONS[section.type] ?? "📂"}</div>
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-white/40">{SECTION_LABELS[section.type] ?? "Произвольный раздел"} · меню: {navigation.label || "скрыто"}</div>
+                    <div className="font-semibold">{sectionPreviewTitle(section)}</div>
+                    <div className="mt-1 text-xs text-white/35">{navigation.link}</div>
+                  </div>
+                  <Toggle checked={section.visible} onChange={() => handleToggleVisible(section)} />
+                  {isEditing ? <GhostButton type="button" onClick={cancelEditing}>Свернуть</GhostButton> : <GhostButton type="button" onClick={() => startEditing(section)}>Редактировать</GhostButton>}
+                  <DangerButton type="button" onClick={() => handleDelete(section.id)}>Удалить</DangerButton>
+                </div>
+                {isEditing && draftContent ? (
+                  <div className="border-t border-white/10 p-5">
+                    <SectionEditorForm type={section.type} content={draftContent} onChange={setDraftContent} />
+                    <div className="mt-4 flex gap-3">
+                      <PrimaryButton type="button" onClick={() => saveEditing(section.id)}>Сохранить раздел</PrimaryButton>
+                      <GhostButton type="button" onClick={cancelEditing}>Отмена</GhostButton>
+                    </div>
+                  </div>
+                ) : null}
               </div>
-              {isEditing && draftContent ? <div className="border-t border-white/10 p-5"><SectionEditorForm type={section.type} content={draftContent} onChange={setDraftContent} /><div className="mt-4 flex gap-3"><PrimaryButton type="button" onClick={() => saveEditing(section.id)}>Сохранить раздел</PrimaryButton><GhostButton type="button" onClick={cancelEditing}>Отмена</GhostButton></div></div> : null}
-            </div>;
+            );
           })}
         </div>
       </div>

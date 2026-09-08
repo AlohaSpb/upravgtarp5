@@ -1,6 +1,7 @@
 import type {
   ContactsContent,
   CtaContent,
+  CustomContent,
   FeaturesContent,
   GalleryContent,
   HeroContent,
@@ -31,6 +32,7 @@ function Gallery({ content }: { content: GalleryContent }) { if (!content.images
 function TextBlock({ content }: { content: TextContent }) { return <section id="text" className="bg-[#0b0d12] py-20 text-white"><Container><div className="mx-auto max-w-3xl text-center"><h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2><p className="mt-6 whitespace-pre-line text-base leading-relaxed text-white/70">{content.body}</p></div></Container></section>; }
 function Cta({ content, settings }: { content: CtaContent; settings: SiteSettingsRecord }) { return <section id="cta" className="py-20 text-center text-white" style={{ background: `linear-gradient(120deg, ${settings.accentColor}, #1a0508)` }}><Container><h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>{content.subtitle ? <p className="mx-auto mt-4 max-w-xl text-white/85">{content.subtitle}</p> : null}{content.buttonText ? <a href={content.buttonLink || "#"} className="mt-8 inline-block rounded-xl bg-black px-8 py-4 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-black/80">{content.buttonText}</a> : null}</Container></section>; }
 function Contacts({ content, settings }: { content: ContactsContent; settings: SiteSettingsRecord }) { return <section id="contacts" className="bg-[#0e1016] py-24 text-white"><Container><div className="mb-14 text-center"><h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>{content.subtitle ? <p className="mt-3 text-white/60">{content.subtitle}</p> : null}</div><div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">{content.items?.map((item, index) => { const Wrapper = item.link ? "a" : "div"; return <Wrapper key={index} {...(item.link ? { href: item.link, target: "_blank", rel: "noreferrer" } : {})} className="block rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition hover:border-white/25"><div className="text-xs font-semibold uppercase tracking-wide" style={{ color: settings.accentColor }}>{item.label}</div><div className="mt-2 font-semibold">{item.value}</div></Wrapper>; })}</div></Container></section>; }
+function CustomSection({ content, settings }: { content: CustomContent; settings: SiteSettingsRecord }) { return <section className="bg-[#0b0d12] py-20 text-white"><Container><div className="mx-auto max-w-4xl"><div className="mb-12 text-center"><h1 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h1>{content.intro ? <p className="mx-auto mt-4 max-w-2xl whitespace-pre-line text-white/60">{content.intro}</p> : null}</div><div className="space-y-5">{content.items?.map((item, index) => <article key={index} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"><div className="mb-3 h-1 w-12 rounded-full" style={{ backgroundColor: settings.accentColor }} /><h2 className="text-xl font-bold">{item.heading}</h2>{item.comment ? <p className="mt-3 whitespace-pre-line leading-relaxed text-white/65">{item.comment}</p> : null}</article>)}</div></div></Container></section>; }
 
 export function SectionRenderer({ section, settings }: { section: SectionRecord; settings: SiteSettingsRecord }) {
   switch (section.type) {
@@ -43,6 +45,7 @@ export function SectionRenderer({ section, settings }: { section: SectionRecord;
     case "text": return <TextBlock content={section.content as unknown as TextContent} />;
     case "cta": return <Cta content={section.content as unknown as CtaContent} settings={settings} />;
     case "contacts": return <Contacts content={section.content as unknown as ContactsContent} settings={settings} />;
+    case "custom": return <CustomSection content={section.content as unknown as CustomContent} settings={settings} />;
     default: return null;
   }
 }
