@@ -18,9 +18,20 @@ function Container({ children, className = "" }: { children: React.ReactNode; cl
 }
 
 function LinkifiedText({ text, className = "" }: { text: string; className?: string }) {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = text.split(urlRegex);
-  return <p className={className}>{parts.map((part, index) => /^https?:\/\//.test(part) ? <a key={index} href={part} target="_blank" rel="noreferrer" className="break-all font-semibold text-blue-400 underline decoration-blue-400/40 underline-offset-2 transition hover:text-blue-300">{part}</a> : <span key={index}>{part}</span>)}</p>;
+  const tokenRegex = /(\[[^\]]+\]\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s]+)/g;
+  const markdownLinkRegex = /^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/;
+  const parts = text.split(tokenRegex);
+
+  return <p className={className}>{parts.map((part, index) => {
+    const namedLink = part.match(markdownLinkRegex);
+    if (namedLink) {
+      return <a key={index} href={namedLink[2]} target="_blank" rel="noreferrer" className="mx-1 inline-flex items-center rounded-lg border border-white/15 bg-white/10 px-3 py-1.5 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/15">{namedLink[1]}</a>;
+    }
+    if (/^https?:\/\//.test(part)) {
+      return <a key={index} href={part} target="_blank" rel="noreferrer" className="break-all font-semibold text-blue-400 underline decoration-blue-400/40 underline-offset-2 transition hover:text-blue-300">{part}</a>;
+    }
+    return <span key={index}>{part}</span>;
+  })}</p>;
 }
 
 function Hero({ content, settings }: { content: HeroContent; settings: SiteSettingsRecord }) {
