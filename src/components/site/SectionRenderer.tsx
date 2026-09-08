@@ -17,276 +17,32 @@ function Container({ children, className = "" }: { children: React.ReactNode; cl
 }
 
 function Hero({ content, settings }: { content: HeroContent; settings: SiteSettingsRecord }) {
-  return (
-    <section
-      id="hero"
-      className="relative overflow-hidden border-b border-white/10 bg-[#0b0d12] py-28 text-white"
-      style={{
-        backgroundImage: content.backgroundImage
-          ? `linear-gradient(180deg, rgba(11,13,18,0.75), rgba(11,13,18,0.95)), url(${content.backgroundImage})`
-          : undefined,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-30"
-        style={{
-          background: `radial-gradient(circle at 20% 20%, ${settings.accentColor}55, transparent 45%), radial-gradient(circle at 80% 60%, ${settings.accentColor}33, transparent 40%)`,
-        }}
-      />
-      <Container className="relative z-10 text-center">
-        {content.eyebrow ? (
-          <p
-            className="mb-4 inline-block rounded-full border px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]"
-            style={{ borderColor: settings.accentColor, color: settings.accentColor }}
-          >
-            {content.eyebrow}
-          </p>
-        ) : null}
-        <h1 className="text-[clamp(2.25rem,6vw,4.25rem)] font-black leading-tight">{content.title}</h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-white/70">{content.subtitle}</p>
-
-        {content.showServerIp && settings.serverIp ? (
-          <div className="mx-auto mt-8 inline-flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-6 py-3 font-mono text-sm text-white/90 backdrop-blur">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
-            IP сервера: <span className="font-bold text-white">{settings.serverIp}</span>
-          </div>
-        ) : null}
-
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          {content.primaryButtonText ? (
-            <a
-              href={content.primaryButtonLink || "#"}
-              className="rounded-xl px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:brightness-110"
-              style={{ backgroundColor: settings.accentColor }}
-            >
-              {content.primaryButtonText}
-            </a>
-          ) : null}
-          {content.secondaryButtonText ? (
-            <a
-              href={content.secondaryButtonLink || "#"}
-              className="rounded-xl border border-white/25 px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-white/10"
-            >
-              {content.secondaryButtonText}
-            </a>
-          ) : null}
-        </div>
-      </Container>
-    </section>
-  );
+  return <section id="hero" className="relative overflow-hidden border-b border-white/10 bg-[#0b0d12] py-28 text-white" style={{ backgroundImage: content.backgroundImage ? `linear-gradient(180deg, rgba(11,13,18,0.75), rgba(11,13,18,0.95)), url(${content.backgroundImage})` : undefined, backgroundSize: "cover", backgroundPosition: "center" }}><div className="pointer-events-none absolute inset-0 opacity-30" style={{ background: `radial-gradient(circle at 20% 20%, ${settings.accentColor}55, transparent 45%), radial-gradient(circle at 80% 60%, ${settings.accentColor}33, transparent 40%)` }} /><Container className="relative z-10 text-center">{content.eyebrow ? <p className="mb-4 inline-block rounded-full border px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]" style={{ borderColor: settings.accentColor, color: settings.accentColor }}>{content.eyebrow}</p> : null}<h1 className="text-[clamp(2.25rem,6vw,4.25rem)] font-black leading-tight">{content.title}</h1><p className="mx-auto mt-6 max-w-2xl text-lg text-white/70">{content.subtitle}</p>{content.showServerIp && settings.serverIp ? <div className="mx-auto mt-8 inline-flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-6 py-3 font-mono text-sm text-white/90 backdrop-blur"><span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />IP сервера: <span className="font-bold text-white">{settings.serverIp}</span></div> : null}<div className="mt-10 flex flex-wrap items-center justify-center gap-4">{content.primaryButtonText ? <a href={content.primaryButtonLink || "#"} className="rounded-xl px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:brightness-110" style={{ backgroundColor: settings.accentColor }}>{content.primaryButtonText}</a> : null}{content.secondaryButtonText ? <a href={content.secondaryButtonLink || "#"} className="rounded-xl border border-white/25 px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-white/10">{content.secondaryButtonText}</a> : null}</div></Container></section>;
 }
 
 function Features({ content, settings }: { content: FeaturesContent; settings: SiteSettingsRecord }) {
-  return (
-    <section id="menu" className="scroll-mt-20 bg-[#0e1016] py-24 text-white">
-      <Container>
-        <div className="mb-14 text-center">
-          <h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>
-          {content.subtitle ? <p className="mt-3 text-white/60">{content.subtitle}</p> : null}
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {content.items?.map((item, index) => (
-            <div
-              key={index}
-              className="group rounded-2xl border border-white/10 bg-white/[0.03] p-7 transition hover:-translate-y-1 hover:border-white/20"
-            >
-              <div
-                className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
-                style={{ backgroundColor: `${settings.accentColor}22` }}
-              >
-                {item.icon}
-              </div>
-              <h3 className="mb-2 text-lg font-bold">{item.title}</h3>
-              <p className="text-sm leading-relaxed text-white/60">{item.description}</p>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
+  return <section id="menu" className="scroll-mt-20 bg-[#0e1016] py-24 text-white"><Container><div className="mb-14 text-center"><h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>{content.subtitle ? <p className="mt-3 text-white/60">{content.subtitle}</p> : null}</div><div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">{content.items?.map((item, index) => { const card = <><div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-2xl" style={{ backgroundColor: `${settings.accentColor}22` }}>{item.icon}</div><h3 className="mb-2 text-lg font-bold">{item.title}</h3><p className="text-sm leading-relaxed text-white/60">{item.description}</p>{item.link ? <div className="mt-4 text-xs font-bold uppercase tracking-wide" style={{ color: settings.accentColor }}>Открыть →</div> : null}</>; return item.link ? <a key={index} href={item.link} className="group rounded-2xl border border-white/10 bg-white/[0.03] p-7 transition hover:-translate-y-1 hover:border-white/30">{card}</a> : <div key={index} className="group rounded-2xl border border-white/10 bg-white/[0.03] p-7 transition hover:-translate-y-1 hover:border-white/20">{card}</div>; })}</div></Container></section>;
 }
 
-function Stats({ content, settings }: { content: StatsContent; settings: SiteSettingsRecord }) {
-  return (
-    <section id="stats" className="border-y border-white/10 bg-[#0b0d12] py-16 text-white">
-      <Container>
-        {content.title ? <h2 className="mb-10 text-center text-2xl font-bold">{content.title}</h2> : null}
-        <div className="grid grid-cols-2 gap-8 text-center sm:grid-cols-4">
-          {content.items?.map((item, index) => (
-            <div key={index}>
-              <div className="text-3xl font-black sm:text-4xl" style={{ color: settings.accentColor }}>
-                {item.value}
-              </div>
-              <div className="mt-2 text-sm uppercase tracking-wide text-white/60">{item.label}</div>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-function Rules({ content, settings }: { content: RulesContent; settings: SiteSettingsRecord }) {
-  return (
-    <section id="rules" className="bg-[#0e1016] py-24 text-white">
-      <Container>
-        <div className="mb-14 text-center">
-          <h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>
-          {content.subtitle ? <p className="mt-3 text-white/60">{content.subtitle}</p> : null}
-        </div>
-        <div className="mx-auto grid max-w-4xl gap-4">
-          {content.items?.map((item, index) => (
-            <div key={index} className="flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-5">
-              <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
-                style={{ backgroundColor: settings.accentColor }}
-              >
-                {index + 1}
-              </div>
-              <div>
-                <h3 className="font-bold">{item.title}</h3>
-                <p className="mt-1 text-sm text-white/60">{item.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-function News({ content, settings }: { content: NewsContent; settings: SiteSettingsRecord }) {
-  return (
-    <section id="news" className="bg-[#0b0d12] py-24 text-white">
-      <Container>
-        <h2 className="mb-14 text-center text-3xl font-extrabold sm:text-4xl">{content.title}</h2>
-        <div className="mx-auto grid max-w-4xl gap-5">
-          {content.items?.map((item, index) => (
-            <div key={index} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide" style={{ color: settings.accentColor }}>
-                {item.date}
-              </div>
-              <h3 className="text-lg font-bold">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/60">{item.text}</p>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-function Gallery({ content }: { content: GalleryContent }) {
-  if (!content.images?.length) return null;
-  return (
-    <section id="gallery" className="bg-[#0e1016] py-24 text-white">
-      <Container>
-        <h2 className="mb-14 text-center text-3xl font-extrabold sm:text-4xl">{content.title}</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {content.images.map((image, index) => (
-            <figure key={index} className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={image.url} alt={image.caption || "screenshot"} className="h-56 w-full object-cover" />
-              {image.caption ? (
-                <figcaption className="p-3 text-center text-sm text-white/60">{image.caption}</figcaption>
-              ) : null}
-            </figure>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-function TextBlock({ content }: { content: TextContent }) {
-  return (
-    <section id="text" className="bg-[#0b0d12] py-20 text-white">
-      <Container>
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>
-          <p className="mt-6 whitespace-pre-line text-base leading-relaxed text-white/70">{content.body}</p>
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-function Cta({ content, settings }: { content: CtaContent; settings: SiteSettingsRecord }) {
-  return (
-    <section
-      id="cta"
-      className="py-20 text-center text-white"
-      style={{ background: `linear-gradient(120deg, ${settings.accentColor}, #1a0508)` }}
-    >
-      <Container>
-        <h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>
-        {content.subtitle ? <p className="mx-auto mt-4 max-w-xl text-white/85">{content.subtitle}</p> : null}
-        {content.buttonText ? (
-          <a
-            href={content.buttonLink || "#"}
-            className="mt-8 inline-block rounded-xl bg-black px-8 py-4 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-black/80"
-          >
-            {content.buttonText}
-          </a>
-        ) : null}
-      </Container>
-    </section>
-  );
-}
-
-function Contacts({ content, settings }: { content: ContactsContent; settings: SiteSettingsRecord }) {
-  return (
-    <section id="contacts" className="bg-[#0e1016] py-24 text-white">
-      <Container>
-        <div className="mb-14 text-center">
-          <h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>
-          {content.subtitle ? <p className="mt-3 text-white/60">{content.subtitle}</p> : null}
-        </div>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {content.items?.map((item, index) => {
-            const Wrapper = item.link ? "a" : "div";
-            return (
-              <Wrapper
-                key={index}
-                {...(item.link ? { href: item.link, target: "_blank", rel: "noreferrer" } : {})}
-                className="block rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition hover:border-white/25"
-              >
-                <div className="text-xs font-semibold uppercase tracking-wide" style={{ color: settings.accentColor }}>
-                  {item.label}
-                </div>
-                <div className="mt-2 font-semibold">{item.value}</div>
-              </Wrapper>
-            );
-          })}
-        </div>
-      </Container>
-    </section>
-  );
-}
+function Stats({ content, settings }: { content: StatsContent; settings: SiteSettingsRecord }) { return <section id="stats" className="border-y border-white/10 bg-[#0b0d12] py-16 text-white"><Container>{content.title ? <h2 className="mb-10 text-center text-2xl font-bold">{content.title}</h2> : null}<div className="grid grid-cols-2 gap-8 text-center sm:grid-cols-4">{content.items?.map((item, index) => <div key={index}><div className="text-3xl font-black sm:text-4xl" style={{ color: settings.accentColor }}>{item.value}</div><div className="mt-2 text-sm uppercase tracking-wide text-white/60">{item.label}</div></div>)}</div></Container></section>; }
+function Rules({ content, settings }: { content: RulesContent; settings: SiteSettingsRecord }) { return <section id="rules" className="bg-[#0e1016] py-24 text-white"><Container><div className="mb-14 text-center"><h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>{content.subtitle ? <p className="mt-3 text-white/60">{content.subtitle}</p> : null}</div><div className="mx-auto grid max-w-4xl gap-4">{content.items?.map((item, index) => <div key={index} className="flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-5"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white" style={{ backgroundColor: settings.accentColor }}>{index + 1}</div><div><h3 className="font-bold">{item.title}</h3><p className="mt-1 text-sm text-white/60">{item.description}</p></div></div>)}</div></Container></section>; }
+function News({ content, settings }: { content: NewsContent; settings: SiteSettingsRecord }) { return <section id="news" className="bg-[#0b0d12] py-24 text-white"><Container><h2 className="mb-14 text-center text-3xl font-extrabold sm:text-4xl">{content.title}</h2><div className="mx-auto grid max-w-4xl gap-5">{content.items?.map((item, index) => <div key={index} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"><div className="mb-2 text-xs font-semibold uppercase tracking-wide" style={{ color: settings.accentColor }}>{item.date}</div><h3 className="text-lg font-bold">{item.title}</h3><p className="mt-2 text-sm leading-relaxed text-white/60">{item.text}</p></div>)}</div></Container></section>; }
+function Gallery({ content }: { content: GalleryContent }) { if (!content.images?.length) return null; return <section id="gallery" className="bg-[#0e1016] py-24 text-white"><Container><h2 className="mb-14 text-center text-3xl font-extrabold sm:text-4xl">{content.title}</h2><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{content.images.map((image, index) => <figure key={index} className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={image.url} alt={image.caption || "screenshot"} className="h-56 w-full object-cover" />{image.caption ? <figcaption className="p-3 text-center text-sm text-white/60">{image.caption}</figcaption> : null}</figure>)}</div></Container></section>; }
+function TextBlock({ content }: { content: TextContent }) { return <section id="text" className="bg-[#0b0d12] py-20 text-white"><Container><div className="mx-auto max-w-3xl text-center"><h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2><p className="mt-6 whitespace-pre-line text-base leading-relaxed text-white/70">{content.body}</p></div></Container></section>; }
+function Cta({ content, settings }: { content: CtaContent; settings: SiteSettingsRecord }) { return <section id="cta" className="py-20 text-center text-white" style={{ background: `linear-gradient(120deg, ${settings.accentColor}, #1a0508)` }}><Container><h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>{content.subtitle ? <p className="mx-auto mt-4 max-w-xl text-white/85">{content.subtitle}</p> : null}{content.buttonText ? <a href={content.buttonLink || "#"} className="mt-8 inline-block rounded-xl bg-black px-8 py-4 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-black/80">{content.buttonText}</a> : null}</Container></section>; }
+function Contacts({ content, settings }: { content: ContactsContent; settings: SiteSettingsRecord }) { return <section id="contacts" className="bg-[#0e1016] py-24 text-white"><Container><div className="mb-14 text-center"><h2 className="text-3xl font-extrabold sm:text-4xl">{content.title}</h2>{content.subtitle ? <p className="mt-3 text-white/60">{content.subtitle}</p> : null}</div><div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">{content.items?.map((item, index) => { const Wrapper = item.link ? "a" : "div"; return <Wrapper key={index} {...(item.link ? { href: item.link, target: "_blank", rel: "noreferrer" } : {})} className="block rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition hover:border-white/25"><div className="text-xs font-semibold uppercase tracking-wide" style={{ color: settings.accentColor }}>{item.label}</div><div className="mt-2 font-semibold">{item.value}</div></Wrapper>; })}</div></Container></section>; }
 
 export function SectionRenderer({ section, settings }: { section: SectionRecord; settings: SiteSettingsRecord }) {
   switch (section.type) {
-    case "hero":
-      return <Hero content={section.content as unknown as HeroContent} settings={settings} />;
-    case "features":
-      return <Features content={section.content as unknown as FeaturesContent} settings={settings} />;
-    case "stats":
-      return <Stats content={section.content as unknown as StatsContent} settings={settings} />;
-    case "rules":
-      return <Rules content={section.content as unknown as RulesContent} settings={settings} />;
-    case "news":
-      return <News content={section.content as unknown as NewsContent} settings={settings} />;
-    case "gallery":
-      return <Gallery content={section.content as unknown as GalleryContent} />;
-    case "text":
-      return <TextBlock content={section.content as unknown as TextContent} />;
-    case "cta":
-      return <Cta content={section.content as unknown as CtaContent} settings={settings} />;
-    case "contacts":
-      return <Contacts content={section.content as unknown as ContactsContent} settings={settings} />;
-    default:
-      return null;
+    case "hero": return <Hero content={section.content as unknown as HeroContent} settings={settings} />;
+    case "features": return <Features content={section.content as unknown as FeaturesContent} settings={settings} />;
+    case "stats": return <Stats content={section.content as unknown as StatsContent} settings={settings} />;
+    case "rules": return <Rules content={section.content as unknown as RulesContent} settings={settings} />;
+    case "news": return <News content={section.content as unknown as NewsContent} settings={settings} />;
+    case "gallery": return <Gallery content={section.content as unknown as GalleryContent} />;
+    case "text": return <TextBlock content={section.content as unknown as TextContent} />;
+    case "cta": return <Cta content={section.content as unknown as CtaContent} settings={settings} />;
+    case "contacts": return <Contacts content={section.content as unknown as ContactsContent} settings={settings} />;
+    default: return null;
   }
 }

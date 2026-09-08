@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { getDb } from "@/db";
 import { sections as sectionsTable, siteSettings as siteSettingsTable } from "@/db/schema";
 import { ensureSeeded } from "@/db/seed";
@@ -5,11 +6,13 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SectionRenderer } from "@/components/site/SectionRenderer";
 import type { SectionRecord, SiteSettingsRecord } from "@/lib/section-types";
+import { getSectionNavigation } from "@/lib/section-types";
 import { asc, eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+export default async function SectionPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const db = getDb();
   await ensureSeeded();
 
@@ -20,14 +23,15 @@ export default async function HomePage() {
 
   const visibleSections = rows.filter((row) => row.visible) as unknown as SectionRecord[];
   const settings = settingsRow as unknown as SiteSettingsRecord;
-  const landingSections = visibleSections.filter((section) => section.type === "hero" || section.type === "features");
+  const pathname = `/${slug}`;
+  const section = visibleSections.find((item) => getSectionNavigation(item).link === pathname);
+
+  if (!section) notFound();
 
   return (
     <main className="min-h-screen bg-[#0b0d12]">
       <Header sections={visibleSections} settings={settings} />
-      {landingSections.map((section) => (
-        <SectionRenderer key={section.id} section={section} settings={settings} />
-      ))}
+      <SectionRenderer section={section} settings={settings} />
       <Footer settings={settings} />
     </main>
   );

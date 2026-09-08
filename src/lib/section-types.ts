@@ -11,6 +11,12 @@ export type SectionType =
   | "cta"
   | "contacts";
 
+export interface SectionNavigationFields {
+  navLabel?: string;
+  navLink?: string;
+  showInNav?: boolean;
+}
+
 export interface HeroContent {
   eyebrow: string;
   title: string;
@@ -27,6 +33,7 @@ export interface FeatureItem {
   icon: string;
   title: string;
   description: string;
+  link?: string;
 }
 export interface FeaturesContent {
   title: string;
@@ -96,15 +103,15 @@ export interface ContactsContent {
 }
 
 export type SectionContentMap = {
-  hero: HeroContent;
-  features: FeaturesContent;
-  stats: StatsContent;
-  rules: RulesContent;
-  news: NewsContent;
-  gallery: GalleryContent;
-  text: TextContent;
-  cta: CtaContent;
-  contacts: ContactsContent;
+  hero: HeroContent & SectionNavigationFields;
+  features: FeaturesContent & SectionNavigationFields;
+  stats: StatsContent & SectionNavigationFields;
+  rules: RulesContent & SectionNavigationFields;
+  news: NewsContent & SectionNavigationFields;
+  gallery: GalleryContent & SectionNavigationFields;
+  text: TextContent & SectionNavigationFields;
+  cta: CtaContent & SectionNavigationFields;
+  contacts: ContactsContent & SectionNavigationFields;
 };
 
 export const SECTION_LABELS: Record<SectionType, string> = {
@@ -143,6 +150,18 @@ export const SECTION_TYPES: SectionType[] = [
   "contacts",
 ];
 
+export const DEFAULT_NAVIGATION: Record<SectionType, { label: string; link: string; show: boolean }> = {
+  hero: { label: "Главная", link: "/", show: true },
+  features: { label: "Меню", link: "/menu", show: true },
+  stats: { label: "Показатели", link: "/stats", show: true },
+  rules: { label: "Положения", link: "/rules", show: true },
+  news: { label: "Объявления", link: "/news", show: true },
+  gallery: { label: "Материалы", link: "/gallery", show: true },
+  text: { label: "Об управлении", link: "/about", show: true },
+  cta: { label: "", link: "/cta", show: false },
+  contacts: { label: "Контакты", link: "/contacts", show: true },
+};
+
 export interface SectionRecord {
   id: string;
   type: SectionType;
@@ -164,31 +183,51 @@ export interface SiteSettingsRecord {
   footerText: string;
 }
 
+export function getSectionNavigation(section: SectionRecord) {
+  const content = section.content as SectionNavigationFields;
+  const fallback = DEFAULT_NAVIGATION[section.type];
+  return {
+    label: content.navLabel?.trim() || fallback.label,
+    link: content.navLink?.trim() || fallback.link,
+    show: content.showInNav ?? fallback.show,
+  };
+}
+
 export function defaultContentFor<T extends SectionType>(type: T): SectionContentMap[T] {
+  const navigation = DEFAULT_NAVIGATION[type];
+  const nav = {
+    navLabel: navigation.label,
+    navLink: navigation.link,
+    showInNav: navigation.show,
+  };
+
   const defaults: SectionContentMap = {
     hero: {
+      ...nav,
       eyebrow: "АДМИНИСТРАЦИЯ ПРЕЗИДЕНТА",
       title: "Управление кадров",
       subtitle:
         "Добро пожаловать на информационный портал Управления кадров Администрации президента Тверской области. Здесь собраны документы, порядок работы и полезная информация для сотрудников.",
       primaryButtonText: "Войти в меню",
-      primaryButtonLink: "#menu",
+      primaryButtonLink: "/menu",
       secondaryButtonText: "",
       secondaryButtonLink: "",
       backgroundImage: "",
       showServerIp: false,
     },
     features: {
+      ...nav,
       title: "Меню управления",
       subtitle: "Выберите необходимый раздел",
       items: [
-        { icon: "👥", title: "Руководство и состав", description: "Информация о руководстве и действующих сотрудниках управления." },
-        { icon: "📜", title: "Устав и регламент", description: "Основные документы, обязанности и порядок работы отдела." },
-        { icon: "📝", title: "Заявления", description: "Формы заявлений на трудоустройство, отпуск и перевод." },
-        { icon: "📊", title: "Отчётность", description: "Требования к отчётам сотрудников и сроки их предоставления." },
+        { icon: "👥", title: "Руководство и состав", description: "Информация о руководстве и действующих сотрудниках управления.", link: "" },
+        { icon: "📜", title: "Устав и регламент", description: "Основные документы, обязанности и порядок работы отдела.", link: "/rules" },
+        { icon: "📝", title: "Заявления", description: "Формы заявлений на трудоустройство, отпуск и перевод.", link: "" },
+        { icon: "📊", title: "Отчётность", description: "Требования к отчётам сотрудников и сроки их предоставления.", link: "/stats" },
       ],
     },
     stats: {
+      ...nav,
       title: "Управление в цифрах",
       items: [
         { label: "Сотрудников", value: "—" },
@@ -198,6 +237,7 @@ export function defaultContentFor<T extends SectionType>(type: T): SectionConten
       ],
     },
     rules: {
+      ...nav,
       title: "Основные положения",
       subtitle: "Правила работы Управления кадров",
       items: [
@@ -208,26 +248,31 @@ export function defaultContentFor<T extends SectionType>(type: T): SectionConten
       ],
     },
     news: {
+      ...nav,
       title: "Объявления отдела",
       items: [
         { date: "01.03.2026", title: "Информационный портал открыт", text: "Актуальные объявления и изменения в работе отдела будут публиковаться в этом разделе." },
       ],
     },
     gallery: {
+      ...nav,
       title: "Материалы отдела",
       images: [],
     },
     text: {
+      ...nav,
       title: "Об Управлении кадров",
       body: "Управление кадров отвечает за комплектование кадрового состава, ведение кадровой документации, контроль деятельности сотрудников и организацию профессиональной подготовки.\n\nИнформация на портале поддерживается руководством отдела в актуальном состоянии.",
     },
     cta: {
+      ...nav,
       title: "Нужна помощь?",
       subtitle: "Обратитесь к руководству Управления кадров по служебным каналам связи.",
       buttonText: "Перейти к контактам",
-      buttonLink: "#contacts",
+      buttonLink: "/contacts",
     },
     contacts: {
+      ...nav,
       title: "Контакты руководства",
       subtitle: "Служебные каналы связи Управления кадров",
       items: [
