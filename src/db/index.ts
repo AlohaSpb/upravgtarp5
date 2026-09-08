@@ -1,20 +1,21 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import * as schema from "./schema";
 
-const databaseUrl = process.env.DATABASE_URL;
+function createDb() {
+  const databaseUrl = process.env.DATABASE_URL;
 
-const globalForDb = globalThis as typeof globalThis & {
-  __arenaNextJsPostgresqlPool?: Pool;
-};
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is not configured. Connect Neon Postgres in Vercel first.");
+  }
 
-export const pool =
-  globalForDb.__arenaNextJsPostgresqlPool ??
-  new Pool({
-    connectionString: databaseUrl,
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.__arenaNextJsPostgresqlPool = pool;
+  return drizzle(neon(databaseUrl), { schema });
 }
 
-export const db = drizzle(pool);
+let database: ReturnType<typeof createDb> | undefined;
+
+// Lazy creation keeps `next build` working before the Vercel integration adds DATABASE_URL.
+export function getDb() {
+  database ??= createDb();
+  return database;
+}

@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { siteSettings } from "@/db/schema";
 import { ensureSeeded } from "@/db/seed";
 import { setSessionCookie } from "@/lib/auth";
@@ -8,6 +8,7 @@ import { NextRequest } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  const db = getDb();
   await ensureSeeded();
   const body = await request.json().catch(() => null);
   const password = body?.password as string | undefined;

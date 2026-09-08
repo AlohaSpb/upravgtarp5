@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { sections } from "@/db/schema";
 import { ensureSeeded } from "@/db/seed";
 import { isAuthenticated } from "@/lib/auth";
@@ -9,6 +9,7 @@ import { NextRequest } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
+  const db = getDb();
   await ensureSeeded();
   const includeHidden = request.nextUrl.searchParams.get("all") === "1";
 
@@ -19,6 +20,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const db = getDb();
   if (!(await isAuthenticated())) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

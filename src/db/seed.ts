@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { sections, siteSettings } from "@/db/schema";
 import { defaultContentFor, SectionType } from "@/lib/section-types";
 import { eq, sql } from "drizzle-orm";
@@ -13,6 +13,7 @@ const DEFAULT_ORDER: SectionType[] = [
 ];
 
 export async function ensureSeeded() {
+  const db = getDb();
   const countResult = await db.execute(sql`select count(*)::int as count from ${sections}`);
   const rows = (countResult as unknown as { rows: { count: number }[] }).rows;
   const count = rows[0]?.count ?? 0;

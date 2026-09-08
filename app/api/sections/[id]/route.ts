@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { sections } from "@/db/schema";
 import { isAuthenticated } from "@/lib/auth";
 import { eq } from "drizzle-orm";
@@ -7,6 +7,7 @@ import { NextRequest } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const db = getDb();
   if (!(await isAuthenticated())) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -36,6 +37,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const db = getDb();
   if (!(await isAuthenticated())) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

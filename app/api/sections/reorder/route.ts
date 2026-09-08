@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { sections } from "@/db/schema";
 import { isAuthenticated } from "@/lib/auth";
 import { eq } from "drizzle-orm";
@@ -7,6 +7,7 @@ import { NextRequest } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  const db = getDb();
   if (!(await isAuthenticated())) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

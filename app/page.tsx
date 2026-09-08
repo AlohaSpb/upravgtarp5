@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { sections as sectionsTable, siteSettings as siteSettingsTable } from "@/db/schema";
 import { ensureSeeded } from "@/db/seed";
 import { Header } from "@/components/site/Header";
@@ -10,6 +10,7 @@ import { asc, eq } from "drizzle-orm";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  const db = getDb();
   await ensureSeeded();
 
   const [rows, [settingsRow]] = await Promise.all([
