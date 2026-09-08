@@ -9,7 +9,8 @@ export type SectionType =
   | "gallery"
   | "text"
   | "cta"
-  | "contacts";
+  | "contacts"
+  | "custom";
 
 export interface SectionNavigationFields {
   navLabel?: string;
@@ -41,65 +42,33 @@ export interface FeaturesContent {
   items: FeatureItem[];
 }
 
-export interface StatItem {
-  label: string;
-  value: string;
-}
-export interface StatsContent {
-  title: string;
-  items: StatItem[];
-}
+export interface StatItem { label: string; value: string; }
+export interface StatsContent { title: string; items: StatItem[]; }
 
-export interface RuleItem {
-  title: string;
-  description: string;
-}
-export interface RulesContent {
-  title: string;
-  subtitle: string;
-  items: RuleItem[];
-}
+export interface RuleItem { title: string; description: string; }
+export interface RulesContent { title: string; subtitle: string; items: RuleItem[]; }
 
-export interface NewsItem {
-  date: string;
-  title: string;
-  text: string;
-}
-export interface NewsContent {
-  title: string;
-  items: NewsItem[];
-}
+export interface NewsItem { date: string; title: string; text: string; }
+export interface NewsContent { title: string; items: NewsItem[]; }
 
-export interface GalleryImage {
-  url: string;
-  caption: string;
-}
-export interface GalleryContent {
-  title: string;
-  images: GalleryImage[];
-}
+export interface GalleryImage { url: string; caption: string; }
+export interface GalleryContent { title: string; images: GalleryImage[]; }
 
-export interface TextContent {
-  title: string;
-  body: string;
-}
+export interface TextContent { title: string; body: string; }
 
-export interface CtaContent {
-  title: string;
-  subtitle: string;
-  buttonText: string;
-  buttonLink: string;
-}
+export interface CtaContent { title: string; subtitle: string; buttonText: string; buttonLink: string; }
 
-export interface ContactItem {
-  label: string;
-  value: string;
-  link: string;
+export interface ContactItem { label: string; value: string; link: string; }
+export interface ContactsContent { title: string; subtitle: string; items: ContactItem[]; }
+
+export interface CustomContentItem {
+  heading: string;
+  comment: string;
 }
-export interface ContactsContent {
+export interface CustomContent {
   title: string;
-  subtitle: string;
-  items: ContactItem[];
+  intro: string;
+  items: CustomContentItem[];
 }
 
 export type SectionContentMap = {
@@ -112,6 +81,7 @@ export type SectionContentMap = {
   text: TextContent & SectionNavigationFields;
   cta: CtaContent & SectionNavigationFields;
   contacts: ContactsContent & SectionNavigationFields;
+  custom: CustomContent & SectionNavigationFields;
 };
 
 export const SECTION_LABELS: Record<SectionType, string> = {
@@ -124,6 +94,7 @@ export const SECTION_LABELS: Record<SectionType, string> = {
   text: "Текстовый блок",
   cta: "Призыв к действию",
   contacts: "Контакты",
+  custom: "Произвольный раздел",
 };
 
 export const SECTION_ICONS: Record<SectionType, string> = {
@@ -136,9 +107,11 @@ export const SECTION_ICONS: Record<SectionType, string> = {
   text: "📝",
   cta: "📢",
   contacts: "☎️",
+  custom: "📂",
 };
 
 export const SECTION_TYPES: SectionType[] = [
+  "custom",
   "hero",
   "features",
   "stats",
@@ -160,6 +133,7 @@ export const DEFAULT_NAVIGATION: Record<SectionType, { label: string; link: stri
   text: { label: "Об управлении", link: "/about", show: true },
   cta: { label: "", link: "/cta", show: false },
   contacts: { label: "Контакты", link: "/contacts", show: true },
+  custom: { label: "Новый раздел", link: "/section", show: true },
 };
 
 export interface SectionRecord {
@@ -185,7 +159,7 @@ export interface SiteSettingsRecord {
 
 export function getSectionNavigation(section: SectionRecord) {
   const content = section.content as SectionNavigationFields;
-  const fallback = DEFAULT_NAVIGATION[section.type];
+  const fallback = DEFAULT_NAVIGATION[section.type] ?? DEFAULT_NAVIGATION.custom;
   return {
     label: content.navLabel?.trim() || fallback.label,
     link: content.navLink?.trim() || fallback.link,
@@ -195,92 +169,24 @@ export function getSectionNavigation(section: SectionRecord) {
 
 export function defaultContentFor<T extends SectionType>(type: T): SectionContentMap[T] {
   const navigation = DEFAULT_NAVIGATION[type];
-  const nav = {
-    navLabel: navigation.label,
-    navLink: navigation.link,
-    showInNav: navigation.show,
-  };
+  const nav = { navLabel: navigation.label, navLink: navigation.link, showInNav: navigation.show };
 
   const defaults: SectionContentMap = {
-    hero: {
-      ...nav,
-      eyebrow: "АДМИНИСТРАЦИЯ ПРЕЗИДЕНТА",
-      title: "Управление кадров",
-      subtitle:
-        "Добро пожаловать на информационный портал Управления кадров Администрации президента Тверской области. Здесь собраны документы, порядок работы и полезная информация для сотрудников.",
-      primaryButtonText: "Войти в меню",
-      primaryButtonLink: "/menu",
-      secondaryButtonText: "",
-      secondaryButtonLink: "",
-      backgroundImage: "",
-      showServerIp: false,
-    },
-    features: {
-      ...nav,
-      title: "Меню управления",
-      subtitle: "Выберите необходимый раздел",
-      items: [
-        { icon: "👥", title: "Руководство и состав", description: "Информация о руководстве и действующих сотрудниках управления.", link: "" },
-        { icon: "📜", title: "Устав и регламент", description: "Основные документы, обязанности и порядок работы отдела.", link: "/rules" },
-        { icon: "📝", title: "Заявления", description: "Формы заявлений на трудоустройство, отпуск и перевод.", link: "" },
-        { icon: "📊", title: "Отчётность", description: "Требования к отчётам сотрудников и сроки их предоставления.", link: "/stats" },
-      ],
-    },
-    stats: {
-      ...nav,
-      title: "Управление в цифрах",
-      items: [
-        { label: "Сотрудников", value: "—" },
-        { label: "Открытых заявлений", value: "—" },
-        { label: "Документов", value: "—" },
-        { label: "Обновлено", value: "2026" },
-      ],
-    },
-    rules: {
-      ...nav,
-      title: "Основные положения",
-      subtitle: "Правила работы Управления кадров",
-      items: [
-        { title: "Соблюдение субординации", description: "Каждый сотрудник обязан соблюдать служебную этику и субординацию." },
-        { title: "Исполнение обязанностей", description: "Поручения руководства выполняются своевременно и в полном объёме." },
-        { title: "Ведение отчётности", description: "Сотрудники предоставляют отчёты в установленной форме и в указанные сроки." },
-        { title: "Конфиденциальность", description: "Служебная информация не подлежит разглашению посторонним лицам." },
-      ],
-    },
-    news: {
-      ...nav,
-      title: "Объявления отдела",
-      items: [
-        { date: "01.03.2026", title: "Информационный портал открыт", text: "Актуальные объявления и изменения в работе отдела будут публиковаться в этом разделе." },
-      ],
-    },
-    gallery: {
-      ...nav,
-      title: "Материалы отдела",
-      images: [],
-    },
-    text: {
-      ...nav,
-      title: "Об Управлении кадров",
-      body: "Управление кадров отвечает за комплектование кадрового состава, ведение кадровой документации, контроль деятельности сотрудников и организацию профессиональной подготовки.\n\nИнформация на портале поддерживается руководством отдела в актуальном состоянии.",
-    },
-    cta: {
-      ...nav,
-      title: "Нужна помощь?",
-      subtitle: "Обратитесь к руководству Управления кадров по служебным каналам связи.",
-      buttonText: "Перейти к контактам",
-      buttonLink: "/contacts",
-    },
-    contacts: {
-      ...nav,
-      title: "Контакты руководства",
-      subtitle: "Служебные каналы связи Управления кадров",
-      items: [
-        { label: "Начальник управления", value: "Не указано", link: "" },
-        { label: "Заместитель начальника", value: "Не указано", link: "" },
-        { label: "Приёмная", value: "Не указано", link: "" },
-      ],
-    },
+    hero: { ...nav, eyebrow: "АДМИНИСТРАЦИЯ ПРЕЗИДЕНТА", title: "Управление кадров", subtitle: "Добро пожаловать на информационный портал Управления кадров Администрации президента Тверской области. Здесь собраны документы, порядок работы и полезная информация для сотрудников.", primaryButtonText: "Войти в меню", primaryButtonLink: "/menu", secondaryButtonText: "", secondaryButtonLink: "", backgroundImage: "", showServerIp: false },
+    features: { ...nav, title: "Меню управления", subtitle: "Выберите необходимый раздел", items: [
+      { icon: "👥", title: "Руководство и состав", description: "Информация о руководстве и действующих сотрудниках управления.", link: "" },
+      { icon: "📜", title: "Устав и регламент", description: "Основные документы, обязанности и порядок работы отдела.", link: "/rules" },
+      { icon: "📝", title: "Заявления", description: "Формы заявлений на трудоустройство, отпуск и перевод.", link: "" },
+      { icon: "📊", title: "Отчётность", description: "Требования к отчётам сотрудников и сроки их предоставления.", link: "/stats" },
+    ] },
+    stats: { ...nav, title: "Управление в цифрах", items: [ { label: "Сотрудников", value: "—" }, { label: "Открытых заявлений", value: "—" }, { label: "Документов", value: "—" }, { label: "Обновлено", value: "2026" } ] },
+    rules: { ...nav, title: "Основные положения", subtitle: "Правила работы Управления кадров", items: [ { title: "Соблюдение субординации", description: "Каждый сотрудник обязан соблюдать служебную этику и субординацию." }, { title: "Исполнение обязанностей", description: "Поручения руководства выполняются своевременно и в полном объёме." }, { title: "Ведение отчётности", description: "Сотрудники предоставляют отчёты в установленной форме и в указанные сроки." }, { title: "Конфиденциальность", description: "Служебная информация не подлежит разглашению посторонним лицам." } ] },
+    news: { ...nav, title: "Объявления отдела", items: [ { date: "01.03.2026", title: "Информационный портал открыт", text: "Актуальные объявления и изменения в работе отдела будут публиковаться в этом разделе." } ] },
+    gallery: { ...nav, title: "Материалы отдела", images: [] },
+    text: { ...nav, title: "Об Управлении кадров", body: "Управление кадров отвечает за комплектование кадрового состава, ведение кадровой документации, контроль деятельности сотрудников и организацию профессиональной подготовки.\n\nИнформация на портале поддерживается руководством отдела в актуальном состоянии." },
+    cta: { ...nav, title: "Нужна помощь?", subtitle: "Обратитесь к руководству Управления кадров по служебным каналам связи.", buttonText: "Перейти к контактам", buttonLink: "/contacts" },
+    contacts: { ...nav, title: "Контакты руководства", subtitle: "Служебные каналы связи Управления кадров", items: [ { label: "Начальник управления", value: "Не указано", link: "" }, { label: "Заместитель начальника", value: "Не указано", link: "" }, { label: "Приёмная", value: "Не указано", link: "" } ] },
+    custom: { ...nav, title: "Новый раздел", intro: "", items: [ { heading: "Новый заголовок", comment: "Текст или комментарий" } ] },
   };
 
   return defaults[type];
