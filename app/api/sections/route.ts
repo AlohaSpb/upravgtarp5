@@ -35,22 +35,11 @@ export async function POST(request: NextRequest) {
   const rows = await db.select().from(sections);
   const maxPosition = rows.reduce((max, row) => Math.max(max, row.position), -1);
 
-  const content = defaultContentFor(type) as Record<string, unknown>;
-  if (type === "custom") {
-    const title = typeof body?.title === "string" ? body.title.trim() : "";
-    const link = typeof body?.link === "string" ? body.link.trim() : "";
-    if (title) {
-      content.title = title;
-      content.navLabel = title;
-    }
-    if (link) content.navLink = link.startsWith("/") || link.startsWith("http") ? link : `/${link}`;
-  }
-
   const [created] = await db
     .insert(sections)
     .values({
       type,
-      content,
+      content: defaultContentFor(type),
       position: maxPosition + 1,
       visible: true,
     })
