@@ -20,11 +20,12 @@ export default async function HomePage() {
 
   const visibleSections = rows.filter((row) => row.visible) as unknown as SectionRecord[];
   const settings = settingsRow as unknown as SiteSettingsRecord;
+  const landingSections = visibleSections.filter((section) => section.type === "hero" || section.type === "features");
 
   return (
     <main className="min-h-screen bg-[#0b0d12]">
       <Header sections={visibleSections} settings={settings} />
-      {visibleSections.map((section) => (
+      {landingSections.map((section) => (
         <SectionRenderer key={section.id} section={section} settings={settings} />
       ))}
       <Footer settings={settings} />
